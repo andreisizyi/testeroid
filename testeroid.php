@@ -112,10 +112,24 @@ function testing( $terms, $args ) {
 
 	$progress->finish();
 
+	reset_auto_increment_indexes();
 
 	return $test_results;
 }
 
+function reset_auto_increment_indexes() {
+	Global $wpdb;
+	$tables = $wpdb->get_col("SHOW TABLES");
+	foreach ($tables as $table) {
+		$max_id = $wpdb->get_var("SELECT MAX(id) FROM $table");
+
+		if ($max_id !== null) {
+			$wpdb->query("ALTER TABLE $table AUTO_INCREMENT = " . ($max_id + 1));
+		} else {
+			$wpdb->query("ALTER TABLE $table AUTO_INCREMENT = 1");
+		}
+	}
+}
 
 function test( $text, $function, $active = true ) {
 
